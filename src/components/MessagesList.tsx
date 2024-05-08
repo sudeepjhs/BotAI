@@ -17,18 +17,27 @@ import { ChangeEvent, useRef, useState } from "react";
 import { FaRegStar, FaRegThumbsDown, FaStar } from "react-icons/fa";
 import Rating from "react-rating";
 import { Logo } from "./icons";
-import { IMessage } from "@/config/types";
 
 type Props = {};
 
 const MessagesList = (props: Props) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
-  const { messages, isLoadingAnswer } = useMessages();
-  const selectedMessage = useRef<IMessage | null>(null);
+  const { messages, isLoadingAnswer, setMessages } = useMessages();
+  const selectedMessageId = useRef<number | null>(null);
   const handleFeedback = () => {
-    console.log(selectedMessage.current);
+    if (selectedMessageId.current === null) return;
+    const tempMessage = [...messages];
+    tempMessage[selectedMessageId.current] = {
+      ...tempMessage[selectedMessageId.current],
+      comment: comment,
+      rating: rating,
+    };
+
+    setMessages(() => tempMessage);
+
+    onClose();
   };
 
   return (
@@ -61,8 +70,25 @@ const MessagesList = (props: Props) => {
                       <div>{message.content.trim() || ""}</div>
                     </div>
                     <div className="mt-1 flex gap-3 empty:hidden">
-                      {!isUser && (
-                        <div className="text-gray-400 flex self-end lg:self-center items-center justify-center lg:justify-start mt-0 -ml-1 h-7 gap-[2px] visible">
+                      {!!message.rating && (
+                        <div className="flex flex-col self-end lg:self-center justify-start lg:justify-start mt-0 ml-1 h-7 gap-[2px] text-primary text-sm">
+                          <div className="flex gap-2 item-center">
+                            <label className="text-primary-400">Your Rating : </label>
+                            <Rating
+                              emptySymbol={<FaRegStar size={16} />}
+                              fullSymbol={<FaStar size={12} fill="#F7B750" />}
+                              readonly
+                              initialRating={message.rating}
+                            />
+                          </div>
+                          <div className="flex gap-2 item-center">
+                            <label className="text-primary-400" >Comment : </label>
+                            <p>{message.comment}</p>
+                          </div>
+                        </div>
+                      )}
+                      {!isUser && !message.rating && (
+                        <div className="text-gray-400 flex self-end lg:self-center items-center justify-center lg:justify-start mt-0 -ml-1 h-7 gap-[2px]">
                           <div className="flex">
                             <Button
                               isIconOnly
@@ -70,7 +96,7 @@ const MessagesList = (props: Props) => {
                               className="text-primary-400 hover:text-primary"
                               radius="md"
                               onPress={() => {
-                                selectedMessage.current = message;
+                                selectedMessageId.current = i;
                                 onOpen();
                               }}
                             >
@@ -112,11 +138,11 @@ const MessagesList = (props: Props) => {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">
-                FeedBack
+              <ModalHeader className="flex flex-col gap-1 text-primary">
+                Send FeedBack
               </ModalHeader>
               <ModalBody>
-                <div className="flex flex-col">
+                <div className="flex flex-col text-primary">
                   <form>
                     <div className="flex gap-2">
                       <label>Your Rating</label>
@@ -147,12 +173,10 @@ const MessagesList = (props: Props) => {
                   Close
                 </Button>
                 <Button
-                  onPress={() => {
-                    handleFeedback();
-                    onClose();
-                  }}
+                  onPress={handleFeedback}
                   variant="light"
                   color="success"
+                  isDisabled={!rating || !comment}
                 >
                   Submit
                 </Button>

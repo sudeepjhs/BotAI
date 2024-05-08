@@ -21,4 +21,6 @@ export interface IChatCompletionOptions {
 export interface IMessage {
   content: string;
   role: "user" | "system" | "assistant";
+  comment?: string;
+  rating?: number;
 }

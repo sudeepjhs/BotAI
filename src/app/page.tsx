@@ -18,7 +18,9 @@ export default function Home() {
                 <div className="flex flex-col text-sm pb-9 overflow-y-auto">
                   <div className="sticky top-0 mb-1.5 flex items-center justify-between z-10 h-14 p-2 font-semibold bg-background">
                     <div className="absolute left-1/2 -translate-x-1/2"></div>
-                    <div className="text-black dark:text-white flex items-center gap-2">BOT AI</div>
+                    <div className="text-black dark:text-white flex items-center gap-2">
+                      BOT AI
+                    </div>
                   </div>
                   {/* Conversation Start */}
                   <div className="w-full max-h-96">

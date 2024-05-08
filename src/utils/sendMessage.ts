@@ -1,9 +1,11 @@
-import OpenAI from "openai";
+// import OpenAI from "openai";
+
+import { IMessage } from "@/config/types";
 
 export const sendMessage: (
-  messages: Array<OpenAI.Chat.ChatCompletionMessageParam>
-) => Promise<ReadableStream<Uint8Array> | null | undefined> = async (
-  messages: Array<OpenAI.Chat.ChatCompletionMessageParam>
+  messages: Array<IMessage>
+) => Promise<{ message: string } | null> = async (
+  messages: Array<IMessage>
 ) => {
     try {
       const response = await fetch("/api/createMessage", {
@@ -13,7 +15,7 @@ export const sendMessage: (
         },
         body: JSON.stringify({ messages }),
       });
-      return response.body;
+      return await response.json();
     } catch (error) {
       console.log(error);
     }

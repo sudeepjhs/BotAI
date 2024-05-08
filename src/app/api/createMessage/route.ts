@@ -1,28 +1,37 @@
+import { IChatCompletionOptions, IMessage } from "@/config/types";
+import { G4F } from "g4f";
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY,
+// });
+const g4f = new G4F()
 
 export async function POST(request: NextRequest) {
   const { messages } = (await request.json()) as {
-    messages: Array<OpenAI.Chat.ChatCompletionMessageParam>;
+    messages: Array<IMessage>;
   };
+
   if (messages == null)
     NextResponse.json({ error: "Message not found" }, { status: 406 });
+  const params: IChatCompletionOptions = {
+    provider: g4f.providers.GPT,
+    model: "gpt-4",
+    // stream: true
+  }
 
-  const params: OpenAI.Chat.ChatCompletionCreateParams = {
-    messages: messages,
-    model: "gpt-3.5-turbo",
-    stream: true,
-    max_tokens: 100
-  };
+  // const params: OpenAI.Chat.ChatCompletionCreateParams = {
+  //   messages: messages,
+  //   model: "gpt-3.5-turbo",
+  //   stream: true,
+  //   max_tokens: 100
+  // };
   try {
-    const chatCompletionStream =
-      openai.beta.chat.completions.stream(params);
+    const chatCompletion =
+      await g4f.chatCompletion(messages, params)
     // NextResponse.json(chatCompletion);
-    return new NextResponse(chatCompletionStream.toReadableStream());
+    return NextResponse.json({ message: chatCompletion })
   } catch (error) {
     NextResponse.json({
       error: error instanceof Error ? error.message : error,

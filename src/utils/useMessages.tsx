@@ -1,6 +1,6 @@
 "use client";
-import { ChatCompletionStream } from "openai/lib/ChatCompletionStream.mjs";
-import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
+// import { ChatCompletionStream } from "openai/lib/ChatCompletionStream.mjs";
+// import { IMessage } from "openai/resources/index.mjs";
 import {
   createContext,
   ReactNode,
@@ -9,22 +9,23 @@ import {
   useState,
 } from "react";
 import { sendMessage } from "./sendMessage";
+import { IMessage } from "@/config/types";
 
 interface ContextProps {
-  messages: Array<ChatCompletionMessageParam>;
+  messages: Array<IMessage>;
   addMessage: (content: string) => Promise<void>;
   isLoadingAnswer: boolean;
 }
 
 const ChatsContext = createContext<Partial<ContextProps>>({});
 export function MessagesProvider({ children }: { children: ReactNode }) {
-  const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoadingAnswer, setIsLoadingAnswer] = useState(false);
 
   const addMessage = async (content: string) => {
     setIsLoadingAnswer(true);
     try {
-      const newMessage: ChatCompletionMessageParam = {
+      const newMessage: IMessage = {
         role: "user",
         content,
       };
@@ -32,19 +33,14 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       // Add the user message to the state so we can see it immediately
       setMessages(() => newMessages);
 
-      const res = await sendMessage(newMessages);
-      if (res) {
-        const runner = ChatCompletionStream.fromReadableStream(res);
-        runner.on("content", (delta, snapshot) => {
-          console.log(delta, snapshot);
-        });
-        console.dir(await runner.finalChatCompletion(), { depth: null });
-      }
-      // const reply = data.choices[0].message
+      const data = await sendMessage(newMessages);
+      if (!data) return;
+      const reply: IMessage = { content: data.message, role: "assistant" };
       // Add the assistant message to the state
-      // setMessages([...newMessages, reply])
+      setMessages(() => [...newMessages, reply]);
     } catch (error) {
       // Show error when something goes wrong
+      console.log(error);
     } finally {
       setIsLoadingAnswer(false);
     }

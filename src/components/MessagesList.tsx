@@ -35,7 +35,7 @@ const MessagesList = (props: Props) => {
                   </div>
                   <div className="flex flex-grow flex-col max-w-full">
                     <div className="min-h-[20px] text-primary flex flex-col items-start whitespace-pre-wrap break-words [.text-message+&]:mt-5 overflow-x-auto gap-3">
-                      <div>{message.content?.toString().trim() || ""}</div>
+                      <div>{message.content.trim() || ""}</div>
                     </div>
                     <div className="mt-1 flex gap-3 empty:hidden">
                       <div className="text-gray-400 flex self-end lg:self-center items-center justify-center lg:justify-start mt-0 -ml-1 h-7 gap-[2px] visible">

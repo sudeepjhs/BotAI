@@ -56,10 +56,7 @@ export default function Home() {
           </div>
           <div className="relative px-2 py-2 text-center text-xs text-token-text-secondary md:px-[60px]">
             BOTAI can make mistakes. Consider checking important information.
-          </div>import {useEffect} from 'react';
-          import {useEffect} from 'react';
-          import {useEffect} from 'react';
-
+          </div>
         </div>
       </div>
     </div>

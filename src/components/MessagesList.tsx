@@ -15,7 +15,7 @@ import {
 } from "@nextui-org/react";
 import { ChangeEvent, useRef, useState } from "react";
 import { FaRegStar, FaRegThumbsDown, FaStar } from "react-icons/fa";
-import Rating from "react-rating";
+import { RatingStar } from "react-ts-rating-star";
 import { Logo } from "./icons";
 
 type Props = {};
@@ -73,7 +73,9 @@ const MessagesList = (props: Props) => {
                       {!!message.rating && (
                         <div className="flex flex-col self-end lg:self-center justify-start lg:justify-start mt-0 ml-1 h-7 gap-[2px] text-primary text-sm">
                           <div className="flex gap-2 item-center">
-                            <label className="text-primary-400">Your Rating : </label>
+                            <label className="text-primary-400">
+                              Your Rating :{" "}
+                            </label>
                             <Rating
                               emptySymbol={<FaRegStar size={16} />}
                               fullSymbol={<FaStar size={12} fill="#F7B750" />}
@@ -82,7 +84,9 @@ const MessagesList = (props: Props) => {
                             />
                           </div>
                           <div className="flex gap-2 item-center">
-                            <label className="text-primary-400" >Comment : </label>
+                            <label className="text-primary-400">
+                              Comment :{" "}
+                            </label>
                             <p>{message.comment}</p>
                           </div>
                         </div>
@@ -146,11 +150,11 @@ const MessagesList = (props: Props) => {
                   <form>
                     <div className="flex gap-2">
                       <label>Your Rating</label>
-                      <Rating
-                        emptySymbol={<FaRegStar size={16} />}
-                        fullSymbol={<FaStar size={16} fill="#F7B750" />}
+                      <RatingStar
+                        iconColor="#fdcb6e"
+                        averageRating={rating}
+                        iconHoverEffect="scaling"
                         onClick={(val) => setRating(() => val)}
-                        initialRating={rating}
                       />
                     </div>
                     <div className="flex gap-2">

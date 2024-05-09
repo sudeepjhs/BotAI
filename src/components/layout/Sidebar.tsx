@@ -66,8 +66,7 @@ const Sidebar = () => {
         updateDate: val.updateDate,
       } as ChatHistory;
     });
-    console.log("sidebar");
-    
+
     const chatGroups = Object.groupBy(
       filteredchatListData,
       ({ createdDate, updateDate }) => {

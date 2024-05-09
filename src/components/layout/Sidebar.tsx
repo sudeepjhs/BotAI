@@ -6,6 +6,7 @@ import NextLink from "next/link";
 import { FC, useEffect, useState } from "react";
 import { FaRegEdit } from "react-icons/fa";
 import { Logo } from "../icons";
+import { useRouter } from "next/navigation";
 
 interface ChatHistory {
   Id: string | number;
@@ -16,30 +17,30 @@ interface ChatHistory {
 
 interface PastChatProps {
   timeline: string;
-  chats: ChatHistory[] | [];
+  chats: ChatHistory[];
 }
 
 const PastChat: FC<PastChatProps> = ({ timeline, chats }) => {
+  const router = useRouter();
   if (!chats.length) return null;
   return (
     <div className="relative mt-5 empty:mt-0 empty:hidden">
-      <h3 className="h-9 pb-2 pt-3 px-2 text-xs font-medium text-ellipsis overflow-hidden break-all text-token-text-tertiary">
+      <h3 className="h-9 pb-2 pt-3 px-2 text-xs font-medium text-ellipsis overflow-hidden break-all text-primary">
         {timeline}
       </h3>
       <ol>
         {chats.map((c, i) => {
           return (
             <li key={`${timeline}-${i}`} className="relative z-[15]">
-              <div className="relative rounded-lg active:opacity-90 dark:hover:bg-gray-800 hover:bg-gray-200">
-                <Link
-                  as={NextLink}
-                  href={`/chat/${c.Id}`}
-                  className="flex items-center gap-2 p-2"
-                >
+              <div
+                onClick={() => router.push(`/chat/${c.Id}`)}
+                className="relative rounded-lg active:opacity-90 dark:hover:bg-gray-800 hover:bg-gray-200"
+              >
+                <div className="flex items-center gap-2 p-2 text-primary">
                   <div className="relative grow overflow-hidden whitespace-nowrap text-ellipsis">
                     {c.title}
                   </div>
-                </Link>
+                </div>
               </div>
             </li>
           );
@@ -65,6 +66,8 @@ const Sidebar = () => {
         updateDate: val.updateDate,
       } as ChatHistory;
     });
+    console.log("sidebar");
+    
     const chatGroups = Object.groupBy(
       filteredchatListData,
       ({ createdDate, updateDate }) => {
@@ -110,8 +113,7 @@ const Sidebar = () => {
             <div className="flex-col flex-1 transition-opacity duration-500 -mr-2 pr-2 overflow-y-auto">
               <div className="sticky left-0 right-0 top-0 z-20 pt-3.5">
                 <div className="pb-0.5 last:pb-0" tabIndex={0}>
-                  <Link
-                    as={NextLink}
+                  <NextLink
                     href="/"
                     className="flex h-10 items-center gap-2 rounded-lg px-2 font-medium dark:hover:bg-gray-800 hover:bg-gray-200"
                   >
@@ -135,7 +137,7 @@ const Sidebar = () => {
                         </Button>
                       </span>
                     </div>
-                  </Link>
+                  </NextLink>
                 </div>
               </div>
               {!!chats.length && (

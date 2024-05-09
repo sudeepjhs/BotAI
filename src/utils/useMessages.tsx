@@ -67,6 +67,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!Object.hasOwn(params, "chatId")) {
       chatIdIndex.current = -1;
+      setMessages(() => []);
       return;
     }
     const chatsList = localStorage.getItem("chats");
@@ -75,30 +76,44 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     chatIdIndex.current = chatListData.findIndex(
       (chat) => chat.id == params.chatId
     );
+    if (chatIdIndex.current >= 0) {
+      setMessages(() => chatListData[chatIdIndex.current].messages);
+    }
   }, [params]);
 
   useEffect(() => {
-    if (!messages.length || messages.length % 2 !== 0) return;
+    if (
+      !messages.length ||
+      messages.length % 2 !== 0 ||
+      (messages.length == 2 && chatIdIndex.current < 0)
+    )
+      return;
+    const saveData = () => {
+      let storeData: MessageRespository;
+      let chatListData: MessageRespository[] = [];
+      const chatsList = localStorage.getItem("chats");
+      if (chatsList) chatListData = JSON.parse(chatsList);
+      if (chatIdIndex.current === -1 && !params?.chatId) {
+        const id = uuidv4();
+        setNewChatId(() => id);
+        storeData = {
+          createdDate: new Date(),
+          id: id,
+          messages: messages,
+          title: messages[0].content.trim(),
+        };
+        chatListData.push(storeData);
+        chatIdIndex.current = chatListData.length - 1;
+      } else if (chatIdIndex.current >= 0) {
+        chatListData[chatIdIndex.current].messages = messages;
+        chatListData[chatIdIndex.current].updateDate = new Date();
+      }
+      localStorage.setItem("chats", JSON.stringify(chatListData));
+    };
 
-    let storeData: MessageRespository;
-    let chatListData: MessageRespository[] = [];
-    const chatsList = localStorage.getItem("chats");
-    if (chatsList) chatListData = JSON.parse(chatsList);
-    if (chatIdIndex.current === -1 && !params?.chatId) {
-      const id = uuidv4();
-      setNewChatId(() => id);
-      storeData = {
-        createdDate: new Date(),
-        id: id,
-        messages: messages,
-        title: messages[0].content.trim(),
-      };
-      chatListData.push(storeData);
-    } else if (chatIdIndex.current >= 0) {
-      chatListData[chatIdIndex.current].messages = messages;
-      chatListData[chatIdIndex.current].updateDate = new Date();
-    }
-    localStorage.setItem("chats", JSON.stringify(chatListData));
+    setTimeout(() => {
+      saveData();
+    }, 1000);
   }, [messages, params?.chatId]);
 
   return (

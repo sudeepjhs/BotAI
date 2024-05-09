@@ -1,6 +1,5 @@
 "use client";
-// import { ChatCompletionStream } from "openai/lib/ChatCompletionStream.mjs";
-// import { IMessage } from "openai/resources/index.mjs";
+
 import { IMessage } from "@/config/types";
 import { useParams } from "next/navigation";
 import {
@@ -21,9 +20,11 @@ interface ContextProps {
   addMessage: (content: string) => Promise<void>;
   isLoadingAnswer: boolean;
   setMessages: Dispatch<SetStateAction<IMessage[]>>;
+  newChatId: string;
+  setNewChatId: Dispatch<SetStateAction<string>>;
 }
 
-interface MessageRespository {
+export interface MessageRespository {
   id: string | number;
   title: string;
   messages: IMessage[];
@@ -35,6 +36,7 @@ const ChatsContext = createContext<Partial<ContextProps>>({});
 export function MessagesProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoadingAnswer, setIsLoadingAnswer] = useState(false);
+  const [newChatId, setNewChatId] = useState("");
   const params = useParams();
   const chatIdIndex = useRef(-1);
 
@@ -82,15 +84,17 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
     let chatListData: MessageRespository[] = [];
     const chatsList = localStorage.getItem("chats");
     if (chatsList) chatListData = JSON.parse(chatsList);
-    if (chatIdIndex.current === -1) {
+    if (chatIdIndex.current === -1 && !params?.chatId) {
+      const id = uuidv4();
+      setNewChatId(() => id);
       storeData = {
         createdDate: new Date(),
-        id: uuidv4() as string,
+        id: id,
         messages: messages,
         title: messages[0].content.trim(),
       };
       chatListData.push(storeData);
-    } else {
+    } else if (chatIdIndex.current >= 0) {
       chatListData[chatIdIndex.current].messages = messages;
       chatListData[chatIdIndex.current].updateDate = new Date();
     }
@@ -99,7 +103,14 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
   return (
     <ChatsContext.Provider
-      value={{ messages, addMessage, isLoadingAnswer, setMessages }}
+      value={{
+        messages,
+        addMessage,
+        isLoadingAnswer,
+        setMessages,
+        newChatId,
+        setNewChatId,
+      }}
     >
       {children}
     </ChatsContext.Provider>

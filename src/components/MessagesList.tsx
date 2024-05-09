@@ -76,11 +76,10 @@ const MessagesList = (props: Props) => {
                             <label className="text-primary-400">
                               Your Rating :{" "}
                             </label>
-                            <Rating
-                              emptySymbol={<FaRegStar size={16} />}
-                              fullSymbol={<FaStar size={12} fill="#F7B750" />}
-                              readonly
-                              initialRating={message.rating}
+                            <RatingStar
+                              iconColor="#fdcb6e"
+                              averageRating={message.rating}
+                              iconHoverEffect="scaling"
                             />
                           </div>
                           <div className="flex gap-2 item-center">
